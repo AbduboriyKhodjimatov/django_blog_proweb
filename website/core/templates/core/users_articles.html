@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Статьи автора: {{request.user}}
+{% endblock title %}
+
+{% block content %}
+
+<ul class="list-group mb-5">
+          <li class="list-group-item list-group-item-action"><b>Username: </b>{{request.user.username}}</li>
+          <li class="list-group-item list-group-item-action"><b>Email: </b>{{request.email}}</li>
+          <li class="list-group-item list-group-item-action"><b>Просмотры: </b>{{total_views}}</li>
+          <li class="list-group-item list-group-item-action"><b>На сайте: </b>{{days}} дней </li>
+          <li class="list-group-item list-group-item-action"><b>Кол-во отзывов: </b>{{comments_total}}</li>
+          <li class="list-group-item list-group-item-action"><b>Кол-во лайков: </b>{{total_likes}}</li>
+          <li class="list-group-item list-group-item-action"><b>Кол-во дизлайков: </b>{{total_dislikes}}</li>
+</ul>
+<div class="row row-gap-4">
+    {% for article in articles %}
+    <div class="col-4 "> {% include 'components/_article-card.html' %}</div>
+    {% endfor %}
+</div>
+
+
+
+{% endblock content %}

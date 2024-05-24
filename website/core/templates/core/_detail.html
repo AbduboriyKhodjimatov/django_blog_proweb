@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static blog_tags %}
+
+{% block title %}
+
+статья: {{article.name}}
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="card">
+  {% if article.preview %}
+  <img src="{{ article.preview.url }}" class="card-img-top"
+       alt="..." >
+  {% else %}
+  <img src="{% static 'images/palceholder.jpg' %}" class="card-img-top"
+       alt="..." >
+  {% endif %}
+
+  <div class="card-body">
+    <h5 class="card-title">{{article.name}}</h5>
+    <p class="card-text">{{article.short_description}}</p>
+
+      <ul class="list-group">
+          <li class="list-group-item list-group-item-action"><b>Категория: </b>{{article.category}}</li>
+          <li class="list-group-item list-group-item-action"><b>Автор: </b>{{article.author}}</li>
+          <li class="list-group-item list-group-item-action"><b>Просмотры: </b>{{article.views}}</li>
+          <li class="list-group-item list-group-item-action"><b>Дата создания: </b>{{article.created_at}}</li>
+      </ul>
+
+  </div>
+  <div class="card-footer d-flex justify-content-between">
+      {% if request.user == article.author %}
+      <div class="d-flex gap-3">
+          <a href="{% url 'update' article.pk %}" class="btn btn-warning">Изменить</a>
+          <a href="{% url 'delete' article.pk %}" class="btn btn-danger">Удалить</a>
+      </div>
+      {% endif %}
+
+      {% if request.user.is_authenticated and request.user != article.author %}
+      <div class="d-flex gap-3">
+          <a href="{% url 'add_vote' obj_type='article' obj_id=article.pk action='add_like' %}" class="btn btn-success">Лайк ({{total_likes}}) </a>
+          <a href="{% url 'add_vote' obj_type='article' obj_id=article.pk action='add_dislike' %}" class="btn btn-danger">Дизлайк ({{total_dislikes}})</a>
+      </div>
+      {% endif %}
+
+      
+  </div>
+</div>
+<div class="comments">
+    <h2 class="text-center my-5">Комментарии</h2>
+    <div class="container">
+        <div class="row flex-column row-gap-3">
+
+            {% for comment in comments %}
+            {% is_comment_has_like request comment as has_like %}
+
+            <div class="card">
+  <div class="card-header d-flex justify-content-between">
+      {{comment.created_at}}
+      <div>
+          <a href="{% url 'add_vote' obj_type='comment' obj_id=comment.pk action='add_like' %}" class="text-success fs-4 text-decoration-none">
+              {% if not has_like %}
+              <i class="bi bi-hand-thumbs-up"></i>
+              {% else %}
+              <i class="bi bi-hand-thumbs-up-fill"></i>
+              {% endif %}
+              {% for key, value in comment_total_likes.items %}
+              {% if key == comment.pk %}
+              {{value}}
+              {% endif %}
+              {% endfor %}
+          </a>
+          <a href="{% url 'add_vote' obj_type='comment' obj_id=comment.pk action='add_dislike' %}" class="text-danger fs-4 text-decoration-none">
+              <i class="bi bi-hand-thumbs-down"></i>
+              {% for key, value in comment_total_dislikes.items %}
+              {% if key == comment.pk %}
+              {{value}}
+              {% endif %}
+              {% endfor %}
+          </a>
+      </div>
+  </div>
+  <div class="card-body">
+    <blockquote class="blockquote mb-0">
+      <p>{{comment.text}}</p>
+      <footer class="blockquote-footer">
+          <cite title={{comment.author}}">{{comment.author}}</cite>
+      </footer>
+    </blockquote>
+  </div>
+</div>
+            {% endfor %}
+
+        </div>
+    </div>
+    {% if request.user.is_authenticated %}
+
+    <form action="" class="mt-5" method="post">
+        {% csrf_token %}
+        {{form}}
+        <button class="btn btn-dark mt-3" type="submit">Отправить</button>
+    </form>
+    {% else %}
+    <p>
+        Только авторизованные пользователи могут оставлять комменты
+        <a href="">Авторизоваться</a>
+    </p>
+    {% endif %}
+</div>
+{% endblock  %}

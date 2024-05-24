@@ -1,0 +1,16 @@
+{% load blog_tags %}
+
+{% get_categories as categories %}
+
+
+
+
+<div class="list-group">
+  <a href="{% url 'home'  %}" class="list-group-item list-group-item-action {% if request.path == '/' %} active {% endif %} "> Все </a>
+  {% for category in categories %}
+  {% is_category_current request=request pk=category.pk as is_current  %}
+
+  <a href="{% url 'category_articles' category.pk %}" class="list-group-item list-group-item-action {% if is_current %} active {% endif %}"> {{category}} </a>
+  {% endfor %}
+</div>
+
